@@ -12,3 +12,10 @@ class SongResponseSchema(BaseModel):
     album: str
     created_at: str
     updated_at: str
+
+class SpotifyResponseSchema(BaseModel):
+    spotify_id: str
+    title: str
+    duration: int
+    artist: str
+    album: str

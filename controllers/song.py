@@ -1,4 +1,5 @@
 import hashlib
+import requests
 
 from constants.error_messages import GENERAL_ERROR, NOT_FOUND
 from constants.http_statuses import CREATED, OK, SEMANTIC_ERROR, SYNTAX_ERROR
@@ -6,7 +7,7 @@ from database import Session
 from flask import request
 from formatters.playlist import format_playlist_response
 from models import Playlist, Song
-from schemas.requests.song import AddSongPathRequestSchema, AddSongRequestSchema, RemoveSongRequestSchema 
+from schemas.requests.song import AddSongPathRequestSchema, AddSongRequestSchema, RemoveSongRequestSchema, SearchSongRequestSchema 
 
 
 def add(path: AddSongPathRequestSchema, body: AddSongRequestSchema):
@@ -67,6 +68,21 @@ def remove(path: RemoveSongRequestSchema):
         session.commit()
         
         return format_playlist_response(playlist), CREATED
+    except AttributeError as e:
+        return {"message": str(e)}, SEMANTIC_ERROR
+    except Exception as e:
+        return {"message": GENERAL_ERROR}, SYNTAX_ERROR
+    
+def search(path: SearchSongRequestSchema):
+    term = path.term
+
+    try:
+        requests.get(
+            'https://api.spotify.com/v1/search?q' + term + '&type[]=track',
+            headers={'Accept': 'application/json'}
+        )
+        
+        return '', CREATED
     except AttributeError as e:
         return {"message": str(e)}, SEMANTIC_ERROR
     except Exception as e:

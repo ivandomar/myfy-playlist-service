@@ -14,3 +14,6 @@ class RemoveSongRequestSchema(BaseModel):
     playlist_id: str
     user_id: str
     token: str
+
+class SearchSongRequestSchema(BaseModel):
+    term: str
