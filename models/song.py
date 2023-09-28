@@ -19,7 +19,7 @@ class Song(Base):
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     updated_at = Column(DateTime, default=datetime.now(), nullable=False)
     deleted_at = Column(DateTime)
-    songs = relationship('Playlist', secondary='playlist_song', back_populates='songs')
+    playlists = relationship('Playlist', secondary='playlist_song', back_populates='songs')
 
     def __init__(self, spotify_id:str, title:str, duration:int, artist:str, album:str):
         self.id = str(uuid.uuid4())
@@ -28,3 +28,6 @@ class Song(Base):
         self.duration = duration
         self.artist = artist
         self.album = album
+
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}

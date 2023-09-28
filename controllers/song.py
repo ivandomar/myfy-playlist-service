@@ -1,14 +1,13 @@
 import hashlib
 
-from constants.error_messages import INVALID_TOKEN, DUPLICATED_ELEMENT, GENERAL_ERROR, NOT_FOUND
+from constants.error_messages import GENERAL_ERROR, NOT_FOUND
 from constants.http_statuses import CREATED, OK, SEMANTIC_ERROR, SYNTAX_ERROR
 from database import Session
-from datetime import datetime
 from flask import request
 from formatters.playlist import format_playlist_response
 from models import Playlist, Song
-from schemas.requests.song import AddSongPathRequestSchema, AddSongRequestSchema, RemoveSongRequestSchema
-from sqlalchemy import or_    
+from schemas.requests.song import AddSongPathRequestSchema, AddSongRequestSchema, RemoveSongRequestSchema 
+
 
 def add(path: AddSongPathRequestSchema, body: AddSongRequestSchema):
     playlist_id = path.playlist_id
@@ -30,7 +29,6 @@ def add(path: AddSongPathRequestSchema, body: AddSongRequestSchema):
         playlist.songs.append(new_song)
 
         session.commit()
-        session.close()
         
         return format_playlist_response(playlist), CREATED
     except AttributeError as e:
@@ -67,7 +65,6 @@ def remove(path: RemoveSongRequestSchema):
         playlist.songs.remove(matching_song)
 
         session.commit()
-        session.close()
         
         return format_playlist_response(playlist), CREATED
     except AttributeError as e:

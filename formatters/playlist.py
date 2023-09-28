@@ -4,8 +4,8 @@ from typing import List
 
 def format_playlist_response(playlist: Playlist):
     formatted_songs = []
-
-    for song in playlist.songs:
+    
+    for song in new_songs:
         formatted_songs.append(format_song_response(song))
 
     return {

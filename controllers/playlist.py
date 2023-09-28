@@ -27,8 +27,6 @@ def get(path: GetPlaylistRequestSchema):
         if playlist is None:
             raise ValueError(NOT_FOUND)
 
-        session.close()
-
         return format_playlist_response(playlist), OK
         
     except ValueError as e:
@@ -45,11 +43,10 @@ def create(path: CreatePlaylistPathRequestSchema, body: CreatePlaylistRequestSch
 
         session.add(new_playlist)
         session.commit()
-        session.close()
         
         return format_playlist_response(new_playlist), CREATED
     except Exception as e:
-        return {"message": GENERAL_ERROR}, SYNTAX_ERROR
+        return {"message": str(e)}, SYNTAX_ERROR
     
 
 def delete(path: RemovePlaylistRequestSchema):
@@ -94,7 +91,6 @@ def update(path: UpdatePlaylistPathRequestSchema, body: UpdatePlaylistBodyReques
         updated_playlist = session.query(Playlist).filter(Playlist.id == id).one_or_none()
 
         session.commit()
-        session.close()
         
         return format_playlist_response(updated_playlist), OK
 
