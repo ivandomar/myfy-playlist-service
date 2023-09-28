@@ -47,9 +47,20 @@ def get(path: GetPlaylistRequestSchema):
     
 
 def create(path: CreatePlaylistPathRequestSchema, body: CreatePlaylistRequestSchema):
+    user_id = path.user_id
+    token = path.token
+
     new_playlist = Playlist(path.user_id, body.title)
 
     try:
+        auth_response = requests.get(
+            'localhost:5000/user/' + user_id + '/' + token,
+            headers={'Accept': 'application/json'}
+        )
+
+        if auth_response.status_code != OK:
+            raise ChildProcessError(WRONG_CREDENTIALS)
+        
         session = Session()
 
         session.add(new_playlist)
@@ -66,6 +77,14 @@ def delete(path: RemovePlaylistRequestSchema):
     token = path.token
 
     try:
+        auth_response = requests.get(
+            'localhost:5000/user/' + user_id + '/' + token,
+            headers={'Accept': 'application/json'}
+        )
+
+        if auth_response.status_code != OK:
+            raise ChildProcessError(WRONG_CREDENTIALS)
+        
         session = Session()
         session.query(Playlist).filter(Playlist.id == id).update({'deleted_at': datetime.now()})
         session.commit()
@@ -83,6 +102,14 @@ def update(path: UpdatePlaylistPathRequestSchema, body: UpdatePlaylistBodyReques
     token = path.token
         
     try:
+        auth_response = requests.get(
+            'localhost:5000/user/' + user_id + '/' + token,
+            headers={'Accept': 'application/json'}
+        )
+
+        if auth_response.status_code != OK:
+            raise ChildProcessError(WRONG_CREDENTIALS)
+        
         session = Session()
 
         playlist = session.query(Playlist).filter(Playlist.id == id).one_or_none()
