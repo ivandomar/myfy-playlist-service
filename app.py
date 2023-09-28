@@ -5,14 +5,12 @@ from urllib.parse import unquote
 import database
 
 from routes.main import main_blueprint
-from routes.auth import auth_blueprint
-from routes.user import user_blueprint
+from routes.playlist import playlist_blueprint
 
-info = Info(title="myfy auth service", version="0.0.1")
+info = Info(title="myfy playlist service", version="0.0.1")
 app = OpenAPI(__name__, info=info)
 
 CORS(app)
 
 app.register_api(main_blueprint)
-app.register_api(auth_blueprint)
-app.register_api(user_blueprint)
+app.register_api(playlist_blueprint)

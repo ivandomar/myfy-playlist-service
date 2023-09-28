@@ -1,8 +1,5 @@
-import uuid
-
 from datetime import datetime
 from sqlalchemy import Column, DateTime, ForeignKey, String
-from constants import token
 
 from .base import Base
 
