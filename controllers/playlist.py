@@ -37,37 +37,29 @@ def get(path: GetPlaylistRequestSchema):
         return {"mesage": str(e)}, SYNTAX_ERROR
     
 
-def create(body: CreateUserRequestSchema):
-    new_user = User(body.name, body.email, body.login, body.password)
+def create(path: CreatePlaylistPathRequestSchema, body: CreatePlaylistRequestSchema):
+    new_playlist = Playlist(path.user_id, body.title)
 
     try:
         session = Session()
 
-        matching_element = session.query(User).filter(
-            or_(User.login == new_user.login, User.email == new_user.email),
-            User.deleted_at == None
-        ).one_or_none()
-
-        if matching_element is not None:
-            raise AttributeError(DUPLICATED_ELEMENT)
-
-        session.add(new_user)
+        session.add(new_playlist)
         session.commit()
         session.close()
         
-        return format_user_response(new_user), CREATED
-    except AttributeError as e:
-        return {"message": str(e)}, SEMANTIC_ERROR
+        return format_playlist_response(new_playlist), CREATED
     except Exception as e:
         return {"message": GENERAL_ERROR}, SYNTAX_ERROR
     
 
-def delete(path: RemoveUserRequestSchema):
+def delete(path: RemovePlaylistRequestSchema):
     id = path.id
+    user_id = path.user_id
+    token = path.token
 
     try:
         session = Session()
-        session.query(User).filter(User.id == id).update({'deleted_at': datetime.now()})
+        session.query(Playlist).filter(Playlist.id == id).update({'deleted_at': datetime.now()})
         session.commit()
         session.close()
         
@@ -77,65 +69,36 @@ def delete(path: RemoveUserRequestSchema):
         return {"mesage": GENERAL_ERROR}, SYNTAX_ERROR
 
 
-def update(path: UpdateUserIdRequestSchema, body: UpdateUserRequestSchema):
+def update(path: UpdatePlaylistPathRequestSchema, body: UpdatePlaylistBodyRequestSchema):
     id = path.id
+    user_id = path.user_id
+    token = path.token
         
     try:
         session = Session()
 
-        user = session.query(User).filter(User.id == id).one_or_none()
+        playlist = session.query(Playlist).filter(Playlist.id == id).one_or_none()
 
-        if user is None:
+        if playlist is None:
             raise ValueError(NOT_FOUND)
 
-        new_name = body.name or user.name
-        new_email = body.email or user.email
-        new_login = body.login or user.login
-        new_pasword = body.password or user.password
-
-        if new_login != user.login:
-            matching_element = session.query(User).filter(
-                User.login == user.login,
-                User.deleted_at == None,
-                User.id != user.id
-            ).one_or_none()
-
-            if matching_element is not None:
-                raise AttributeError(DUPLICATED_ELEMENT)
-            
-        if new_email != user.email:
-            matching_element = session.query(User).filter(
-                User.email == user.email,
-                User.deleted_at == None,
-                User.id != user.id
-            ).one_or_none()
-
-            if matching_element is not None:
-                raise AttributeError(DUPLICATED_ELEMENT)
-            
-        hash = hashlib.md5()
-        hash.update(bytes(new_pasword, encoding='utf-8'))
-
-        hashed_new_password = hash.hexdigest()
+        new_title = body.title or playlist.name
         
         new_data = {
-            'name': new_name,
-            'email': new_email,
-            'login': new_login,
-            'password': hashed_new_password,
+            'title': new_title,
             'updated_at': datetime.now()
         }
 
-        session.query(User).filter(User.id == id).update(new_data)
+        session.query(Playlist).filter(Playlist.id == id).update(new_data)
 
-        new_element = session.query(User).filter(User.id == id).one_or_none()
+        updated_playlist = session.query(Playlist).filter(Playlist.id == id).one_or_none()
 
         session.commit()
         session.close()
         
-        return format_user_response(new_element), OK
+        return format_playlist_response(updated_playlist), OK
 
-    except(AttributeError, ValueError) as e:
+    except ValueError as e:
         return {"mesage": str(e)}, SEMANTIC_ERROR
     except Exception as e:        
         return {"mesage": GENERAL_ERROR}, SYNTAX_ERROR
