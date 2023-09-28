@@ -1,7 +1,8 @@
 import hashlib
+import requests
 
-from constants.error_messages import INVALID_TOKEN, DUPLICATED_ELEMENT, GENERAL_ERROR, NOT_FOUND
-from constants.http_statuses import CREATED, OK, SEMANTIC_ERROR, SYNTAX_ERROR
+from constants.error_messages import WRONG_CREDENTIALS, GENERAL_ERROR, NOT_FOUND
+from constants.http_statuses import CREATED, OK, SEMANTIC_ERROR, SYNTAX_ERROR, AUTH_ERROR
 from database import Session
 from datetime import datetime
 from flask import request
@@ -17,6 +18,14 @@ def get(path: GetPlaylistRequestSchema):
     token = path.token
     
     try:
+        auth_response = requests.get(
+            'localhost:5000/user/' + user_id + '/' + token,
+            headers={'Accept': 'application/json'}
+        )
+
+        if auth_response.status_code != OK:
+            raise ChildProcessError(WRONG_CREDENTIALS)
+
         session = Session()
 
         playlist = session.query(Playlist).filter(
@@ -31,6 +40,8 @@ def get(path: GetPlaylistRequestSchema):
         
     except ValueError as e:
         return {"mesage": str(e)}, SEMANTIC_ERROR
+    except ChildProcessError as e:
+        return {"mesage": str(e)}, AUTH_ERROR
     except Exception as e:        
         return {"mesage": str(e)}, SYNTAX_ERROR
     
