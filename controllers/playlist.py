@@ -27,21 +27,11 @@ def get(path: GetPlaylistRequestSchema):
         if playlist is None:
             raise ValueError(NOT_FOUND)
 
-        token = session.query(Token).filter(
-            Token.content == token,
-            Token.user_id == user.id,
-            Token.expiration_date > datetime.now(),
-            Token.deleted_at == None
-        ).one_or_none()
-
-        if token is None:
-            raise AttributeError(INVALID_TOKEN)
-
         session.close()
 
-        return format_user_response(user), OK
+        return format_playlist_response(playlist), OK
         
-    except(AttributeError, ValueError) as e:
+    except ValueError as e:
         return {"mesage": str(e)}, SEMANTIC_ERROR
     except Exception as e:        
         return {"mesage": str(e)}, SYNTAX_ERROR

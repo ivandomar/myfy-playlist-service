@@ -1,11 +1,11 @@
 from formatters.song import format_song_response
-from models import Playlist, Song
+from models import Playlist
 from typing import List
 
-def format_playlist_response(playlist: Playlist, songs: List[Song]):
+def format_playlist_response(playlist: Playlist):
     formatted_songs = []
 
-    for song in songs:
+    for song in playlist.songs:
         formatted_songs.append(format_song_response(song))
 
     return {

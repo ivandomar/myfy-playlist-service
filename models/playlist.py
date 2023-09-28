@@ -1,7 +1,7 @@
 import uuid
 
 from datetime import datetime
-from sqlalchemy import Column, DateTime, ForeignKey, String
+from sqlalchemy import Column, DateTime, ForeignKey, String, relationship
 from constants import token
 
 from .base import Base
@@ -16,6 +16,7 @@ class Playlist(Base):
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     updated_at = Column(DateTime, default=datetime.now(), nullable=False)
     deleted_at = Column(DateTime)
+    songs = relationship('Song', secondary='playlist_song', back_populates='playlists')
 
     def __init__(self, user_id:str, title: str):
         self.id = str(uuid.uuid4())
