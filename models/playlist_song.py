@@ -14,7 +14,6 @@ class PlaylistSong(Base):
     song_id = Column(String(36), ForeignKey("song.id"), primary_key=True)
     created_at = Column(DateTime, default=datetime.now(), nullable=False)
     updated_at = Column(DateTime, default=datetime.now(), nullable=False)
-    deleted_at = Column(DateTime)
 
     def __init__(self, playlist_id:str, song_id: str):
         self.playlist_id = playlist_id
